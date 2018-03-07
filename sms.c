@@ -15,13 +15,13 @@ typedef  int int32_t;
 /**************************************************************************************
 * Description    : 定义SMS PDU中固定长度字段的长度
 **************************************************************************************/
-#define SMS_FO_OFFSET 				(1*2)
-#define SMS_PID_OFFSET				(1*2)
-#define SMS_DCS_OFFSET				(1*2)
-#define SMS_SCTS_OFFSET				(7*2)
-#define SMS_UDL_OFFSET				(1*2)
-#define SMS_MR_OFFSET				(1*2)
-#define SMS_UDL_OFFSET				(1*2)
+#define SMS_FO_OFFSET               (1*2)
+#define SMS_PID_OFFSET              (1*2)
+#define SMS_DCS_OFFSET              (1*2)
+#define SMS_SCTS_OFFSET             (7*2)
+#define SMS_UDL_OFFSET              (1*2)
+#define SMS_MR_OFFSET               (1*2)
+#define SMS_UDL_OFFSET              (1*2)
 
 /**************************************************************************************
 * Description    : 定义SMS PDU中DCS定义
@@ -122,41 +122,42 @@ static inline uint8_t m26_sms_oa_offset(uint8_t *oa, int len)
 **************************************************************************************/
 static void m26_sms_input(uint8_t *pdu, int len)
 {
-	uint8_t udl,dcs;
+    uint8_t udl,dcs;
 
-	//跳过SCA
-	pdu += m26_sms_sca_offset(pdu, len);
-	//跳过FO
-	pdu += SMS_FO_OFFSET;
-	//跳过OA
-	pdu += m26_sms_oa_offset(pdu, len);
-	//跳过PID
-	pdu += SMS_PID_OFFSET;
-	dcs = m26_shex2int8(pdu);
-	//跳过DCS+SCTS=1+7
-	pdu +=SMS_DCS_OFFSET+SMS_SCTS_OFFSET;
-	//跳过UDL
-	udl = m26_shex2int8(pdu);
-	pdu += SMS_UDL_OFFSET;
-	len = m26_shex2sbits(pdu, strlen(pdu));
+    //跳过SCA
+    pdu += m26_sms_sca_offset(pdu, len);
+    //跳过FO
+    pdu += SMS_FO_OFFSET;
+    //跳过OA
+    pdu += m26_sms_oa_offset(pdu, len);
+    //跳过PID
+    pdu += SMS_PID_OFFSET;
+    dcs = m26_shex2int8(pdu);
+    //跳过DCS+SCTS=1+7
+    pdu +=SMS_DCS_OFFSET+SMS_SCTS_OFFSET;
+    //跳过UDL
+    udl = m26_shex2int8(pdu);
+    pdu += SMS_UDL_OFFSET;
+    len = m26_shex2sbits(pdu, strlen((char *)pdu));
 
-	switch (dcs) {
-    	case SMS_DCS_UCS2_NOCLASS:
-    	case SMS_DCS_UCS2_CLASS0:
-    	case SMS_DCS_UCS2_CLASS1:
-		len = ucs2_to_gb2312(pdu, pdu, len);
-        	break;
-    	default:break;
-    	}
-	printf("SMS(GB2312):%s\n",pdu);
+    switch (dcs) {
+        case SMS_DCS_UCS2_NOCLASS:
+        case SMS_DCS_UCS2_CLASS0:
+        case SMS_DCS_UCS2_CLASS1:
+        len = ucs2_to_gb2312(pdu, pdu, len);
+            break;
+        default:break;
+        }
+    (void)udl;
+    printf("SMS(GB2312):%s\n",pdu);
 }
 
 int main(int argc, char *argv[])
 {
-	if(argc != 2) exit(0);
-	
-	// argv[1] 是从MODEM读取的PDU格式的短信数据
-	m26_sms_input(argv[1], strlen(argv[1]));
+    if(argc != 2) exit(0);
+    
+    // argv[1] 是从MODEM读取的PDU格式的短信数据
+    m26_sms_input((uint8_t *)argv[1], strlen(argv[1]));
 
-	return 0;
+    return 0;
 }

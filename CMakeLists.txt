@@ -1,7 +1,12 @@
-cmake_minimum_required (2.6)
+cmake_minimum_required(VERSION 2.6)
 
-project (sms)
+PROJECT(sms C)
+ADD_DEFINITIONS(-Os -Wall --std=gnu99 -Wmissing-declarations)
 
-set (SRCS *.c)
+FILE(GLOB SOURCES *.c)
 
-add_executable (sms ${SRCS})
+ADD_EXECUTABLE(sms ${SOURCES})
+
+INSTALL(TARGETS sms 
+        RUNTIME DESTINATION sbin
+)
