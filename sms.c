@@ -150,6 +150,7 @@ static void m26_sms_input(uint8_t *pdu, int len)
         default:break;
         }
     (void)udl;
+    pdu[len] = '\0';
     printf("SMS(GB2312):%s\n",pdu);
 }
 
