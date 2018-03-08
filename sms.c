@@ -74,11 +74,12 @@ static inline uint8_t m26_shex2int8(uint8_t *data)
 **************************************************************************************/
 static inline uint8_t m26_shex2sbits(uint8_t *data, int len)
 {
-    uint8_t i, j;
+    int i, j;
 
     for (i = 0,j = 0; i < len; i = i+2) {
         data[j++] = m26_shex2int8(data + i);
     }
+    data[j] = '\0';
     return j;
 }
 
