@@ -148,7 +148,7 @@ static void m26_sms_input(uint8_t *pdu, int len)
         len = ucs2_to_gb2312(pdu, pdu, len);
             break;
         default:break;
-        }
+    }
     (void)udl;
     pdu[len] = '\0';
     printf("SMS(GB2312):%s\n",pdu);
