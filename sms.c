@@ -123,14 +123,25 @@ static inline uint8_t m26_sms_oa_offset(uint8_t *oa, int len)
 **************************************************************************************/
 static void m26_sms_input(uint8_t *pdu, int len)
 {
+    int i;
+    uint8_t call_len = 0;
     uint8_t udl,dcs;
+    char telphone[20] = {0};
 
     //跳过SCA
     pdu += m26_sms_sca_offset(pdu, len);
     //跳过FO
     pdu += SMS_FO_OFFSET;
     //跳过OA
-    pdu += m26_sms_oa_offset(pdu, len);
+    call_len = m26_sms_oa_offset(pdu, len);
+    memcpy(telphone, pdu + 4, call_len - 4);
+    for(i = 0;i < call_len - 4; i+=2) {
+    	telphone[i] ^= telphone[i+1];
+    	telphone[i+1] ^= telphone[i];
+    	telphone[i] ^= telphone[i+1];
+    }
+    telphone[i - m26_shex2int8(pdu)%2] = '\0';
+    pdu += call_len;
     //跳过PID
     pdu += SMS_PID_OFFSET;
     dcs = m26_shex2int8(pdu);
@@ -151,7 +162,7 @@ static void m26_sms_input(uint8_t *pdu, int len)
     }
     (void)udl;
     pdu[len] = '\0';
-    printf("SMS(GB2312):%s\n",pdu);
+    printf("tel:+%s send SMS(GB2312):%s\n",telphone, pdu);
 }
 
 int main(int argc, char *argv[])
