@@ -7506,3 +7506,46 @@ uint16_t ucs2_to_gb2312(uint8_t *gb2312, uint8_t *ucs2, int len)
     }
     return length;
 }
+
+/******************************************************************************************
+ * * FunctionName   : get_bit()
+ * * Description    : 获取一个指定比特位
+ * * EntryParameter : data,指向比特数据流， bytebit,每个字节有bytebit个有效位， bits,当前指定比特位
+ * * ReturnValue    : 返回bits指向的比特数据1，或者0
+ * *******************************************************************************************/
+static inline uint8_t get_bit(uint8_t *data, uint8_t bytebit, uint16_t bits)
+{
+    uint16_t bytes = bits / bytebit;
+    uint16_t bit = bits % bytebit;
+
+    return (data[bytes] & (1 << bit)) == (1 << bit);
+}
+
+/******************************************************************************************
+ * * FunctionName   : set_bit()
+ * * Description    : 向一个指定比特位设置数据
+ * * EntryParameter : data,指向比特数据流， bytebit,每个字节有bytebit个有效位， bits,当前指定比特位
+ * * ReturnValue    : 返回设置状态
+ * *******************************************************************************************/
+static inline uint8_t set_bit(uint8_t *data, uint8_t bytebit, uint16_t bits, uint8_t val)
+{
+    uint16_t bytes = bits / bytebit;
+    uint16_t bit = bits % bytebit;
+
+    return data[bytes] |= (val << bit);
+}
+
+/******************************************************************************************
+ * * FunctionName   : gsm7bit_to_ascii()
+ * * Description    : gsm7bit编码转换成ascii编码
+ * * EntryParameter : gsm7bit，指向gsm7bit数据串， ascii,指向ascii数据串，bitlen，长度
+ * * ReturnValue    : 返回gb2312的长度
+ * *******************************************************************************************/
+void gsm7bit_to_ascii(uint8_t *gsm7bit, int bitlen, uint8_t *ascii)
+{
+    int i;
+
+    for (i = 0; i < bitlen; i++) {
+        set_bit(ascii, 7, i, get_bit(gsm7bit, 8, i));
+    }
+}

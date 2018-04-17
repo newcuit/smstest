@@ -26,4 +26,12 @@ typedef  int int32_t;
 *******************************************************************************************/
 uint16_t ucs2_to_gb2312(uint8_t *gb2312, uint8_t *ucs2, int length);
 
+/******************************************************************************************
+ * * FunctionName   : gsm7bit_to_ascii()
+ * * Description    : gsm7bit编码转换成ascii编码
+ * * EntryParameter : gsm7bit，指向gsm7bit数据串， ascii,指向ascii数据串，bitlen，长度
+ * * ReturnValue    : 返回gb2312的长度
+ * *******************************************************************************************/
+void gsm7bit_to_ascii(uint8_t *gsm7bit, int bitlen, uint8_t *ascii);
+
 #endif /* _UCS2_GB2312_H_ */

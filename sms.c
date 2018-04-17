@@ -22,6 +22,7 @@ typedef  int int32_t;
 #define SMS_UDL_OFFSET              (1*2)
 #define SMS_MR_OFFSET               (1*2)
 #define SMS_UDL_OFFSET              (1*2)
+#define SMS_UDHI_FLAG               (0x40)
 
 /**************************************************************************************
 * Description    : 定义SMS PDU中DCS定义
@@ -125,12 +126,16 @@ static void m26_sms_input(uint8_t *pdu, int len)
 {
     int i;
     uint8_t call_len = 0;
-    uint8_t udl,dcs;
+    uint8_t gsm = 0;
     char telphone[20] = {0};
+    uint8_t sms[128] = {0};
+    uint8_t udl,dcs, fo, udhi = 0;
 
     //跳过SCA
     pdu += m26_sms_sca_offset(pdu, len);
     //跳过FO
+    fo = m26_shex2int8(pdu);
+    udhi = fo & SMS_UDHI_FLAG?1:0;
     pdu += SMS_FO_OFFSET;
     //跳过OA
     call_len = m26_sms_oa_offset(pdu, len);
@@ -152,17 +157,26 @@ static void m26_sms_input(uint8_t *pdu, int len)
     pdu += SMS_UDL_OFFSET;
     len = m26_shex2sbits(pdu, strlen((char *)pdu));
 
+    if(udhi) return;
     switch (dcs) {
         case SMS_DCS_UCS2_NOCLASS:
         case SMS_DCS_UCS2_CLASS0:
         case SMS_DCS_UCS2_CLASS1:
         len = ucs2_to_gb2312(pdu, pdu, len);
             break;
+        case SMS_DCS_7BIT_NOCLASS:
+	case SMS_DCS_7BIT_CLASS0 :
+	case SMS_DCS_7BIT_CLASS1 :
+	case SMS_DCS_7BIT_CLASS2 :
+	case SMS_DCS_7BIT_CLASS3 :
+            gsm = 1;
+            gsm7bit_to_ascii(pdu, len*8, sms);
+            break;
         default:break;
     }
     (void)udl;
     pdu[len] = '\0';
-    printf("tel:+%s class:%02X send SMS(GB2312):%s\n",telphone, dcs, pdu);
+    printf("tel:+%s udl:%d len:%d class:%02X send SMS(GB2312):%s\n",telphone, udl, len,  dcs, gsm?sms:pdu);
 }
 
 int main(int argc, char *argv[])
