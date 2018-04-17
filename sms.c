@@ -162,7 +162,7 @@ static void m26_sms_input(uint8_t *pdu, int len)
     }
     (void)udl;
     pdu[len] = '\0';
-    printf("tel:+%s send SMS(GB2312):%s\n",telphone, pdu);
+    printf("tel:+%s class:%02X send SMS(GB2312):%s\n",telphone, dcs, pdu);
 }
 
 int main(int argc, char *argv[])
